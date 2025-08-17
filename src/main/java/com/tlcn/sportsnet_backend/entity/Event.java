@@ -1,10 +1,12 @@
 package com.tlcn.sportsnet_backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.tlcn.sportsnet_backend.enums.PaymentMethodEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -16,22 +18,24 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "accounts")
-public class Account {
+@Table(name = "events")
+public class Event {
     @Id
-    @GeneratedValue(strategy= GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @Column(unique=true)
-    String email;
+    String title;
 
-    @Column(nullable=false)
-    String password;
+    @Column(columnDefinition="MEDIUMTEXT")
+    String description;
 
-    boolean enabled;
+    String coverImageUrl;
+    LocalDateTime startTime, endTime;
+    String location, mapLink;
+    BigDecimal fee;
 
-    @Column(columnDefinition = "MEDIUMTEXT")
-    String refreshToken;
+    @Enumerated(EnumType.STRING)
+    PaymentMethodEnum paymentMethod;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
     Instant createdAt;
@@ -45,7 +49,6 @@ public class Account {
     @PrePersist
     public void handleBeforeCreate(){
         createdAt = Instant.now();
-        enabled = true;
 //        createdBy = SecurityUtil.getCurrentUserLogin().isPresent()
 //                ? SecurityUtil.getCurrentUserLogin().get()
 //                : "";
@@ -59,12 +62,15 @@ public class Account {
 //                : "";
     }
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name="account_roles",
-            joinColumns=@JoinColumn(name="account_id"),
-            inverseJoinColumns=@JoinColumn(name="role_id"))
-    Set<Role> roles = new HashSet<>();
+    @ManyToOne @JoinColumn(name="sport_type_id")
+    SportType sportType;
 
-    @OneToOne(mappedBy="account", cascade=CascadeType.ALL, orphanRemoval=true)
-    User user;
+    @ManyToOne @JoinColumn(name="club_id")
+    Club club;
+
+    @ManyToMany
+    @JoinTable(name="event_participants",
+            joinColumns=@JoinColumn(name="event_id"),
+            inverseJoinColumns=@JoinColumn(name="account_id"))
+    Set<Account> participants = new HashSet<>();
 }

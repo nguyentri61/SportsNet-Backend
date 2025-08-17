@@ -1,14 +1,10 @@
 package com.tlcn.sportsnet_backend.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Data
@@ -16,36 +12,30 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "accounts")
-public class Account {
+@Table(name = "posts")
+public class Post {
     @Id
-    @GeneratedValue(strategy= GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @Column(unique=true)
-    String email;
+    @Column(columnDefinition="MEDIUMTEXT")
+    String content;
 
-    @Column(nullable=false)
-    String password;
+    String imageUrl;
 
-    boolean enabled;
-
-    @Column(columnDefinition = "MEDIUMTEXT")
-    String refreshToken;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
     Instant createdAt;
-
     Instant updatedAt;
-
     String createdBy;
-
     String updatedBy;
+
+    @ManyToOne @JoinColumn(name="club_id")
+    Club club;
+    @ManyToOne @JoinColumn(name="event_id")
+    Event event;
 
     @PrePersist
     public void handleBeforeCreate(){
         createdAt = Instant.now();
-        enabled = true;
 //        createdBy = SecurityUtil.getCurrentUserLogin().isPresent()
 //                ? SecurityUtil.getCurrentUserLogin().get()
 //                : "";
@@ -59,12 +49,4 @@ public class Account {
 //                : "";
     }
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name="account_roles",
-            joinColumns=@JoinColumn(name="account_id"),
-            inverseJoinColumns=@JoinColumn(name="role_id"))
-    Set<Role> roles = new HashSet<>();
-
-    @OneToOne(mappedBy="account", cascade=CascadeType.ALL, orphanRemoval=true)
-    User user;
 }
