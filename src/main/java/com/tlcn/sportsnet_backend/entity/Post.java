@@ -28,9 +28,12 @@ public class Post {
     String createdBy;
     String updatedBy;
 
-    @ManyToOne @JoinColumn(name="club_id")
+    @ManyToOne
+    @JoinColumn(name="club_id")
     Club club;
-    @ManyToOne @JoinColumn(name="event_id")
+
+    @ManyToOne
+    @JoinColumn(name="event_id")
     Event event;
 
     @PrePersist

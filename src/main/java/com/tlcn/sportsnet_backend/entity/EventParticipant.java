@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -12,27 +12,20 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "comments")
-public class Comment {
+@Table(name = "event_participants")
+public class EventParticipant {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @ManyToOne
-    @JoinColumn(name="post_id")
-    Post post;
+    String role; // PLAYER, REFEREE
+    LocalDateTime joinedAt;
 
     @ManyToOne
-    @JoinColumn(name="account_id")
+    @JoinColumn(name = "account_id", nullable = false)
     Account account;
 
-    @Column(columnDefinition="TEXT")
-    String content;
-
-    Instant createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = Instant.now();
-    }
+    @ManyToOne
+    @JoinColumn(name = "event_id", nullable = false)
+    Event event;
 }

@@ -30,8 +30,10 @@ public class Event {
     String description;
 
     String coverImageUrl;
-    LocalDateTime startTime, endTime;
-    String location, mapLink;
+    LocalDateTime startTime;
+    LocalDateTime endTime;
+    String location;
+    String status;
     BigDecimal fee;
 
     @Enumerated(EnumType.STRING)
@@ -62,15 +64,14 @@ public class Event {
 //                : "";
     }
 
-    @ManyToOne @JoinColumn(name="sport_type_id")
+    @ManyToOne
+    @JoinColumn(name = "sport_type_id")
     SportType sportType;
 
-    @ManyToOne @JoinColumn(name="club_id")
-    Club club;
+    @ManyToOne
+    @JoinColumn(name = "organizer_id", nullable = false)
+    Account organizer;
 
-    @ManyToMany
-    @JoinTable(name="event_participants",
-            joinColumns=@JoinColumn(name="event_id"),
-            inverseJoinColumns=@JoinColumn(name="account_id"))
-    Set<Account> participants = new HashSet<>();
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<EventParticipant> participants = new HashSet<>();
 }

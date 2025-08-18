@@ -24,7 +24,7 @@ public class Like {
 
     @ManyToOne
     @JoinColumn(name="account_id")
-    Account user;
+    Account account;
 
     Instant createdAt;
 

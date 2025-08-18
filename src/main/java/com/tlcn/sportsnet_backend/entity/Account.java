@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -59,12 +60,42 @@ public class Account {
 //                : "";
     }
 
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    UserInfo userInfo;
+
+    // Quan hệ N-N với Role
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name="account_roles",
-            joinColumns=@JoinColumn(name="account_id"),
-            inverseJoinColumns=@JoinColumn(name="role_id"))
+    @JoinTable(
+            name = "account_roles",
+            joinColumns = @JoinColumn(name = "account_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
     Set<Role> roles = new HashSet<>();
 
-    @OneToOne(mappedBy="account", cascade=CascadeType.ALL, orphanRemoval=true)
-    User user;
+    // Quan hệ 1-N với Friendship
+    @OneToMany(mappedBy = "requester")
+    Set<Friendship> sentFriendships = new HashSet<>();
+
+    @OneToMany(mappedBy = "receiver")
+    Set<Friendship> receivedFriendships = new HashSet<>();
+
+    // Quan hệ 1-N với Club
+    @OneToMany(mappedBy = "owner")
+    Set<Club> clubs = new HashSet<>();
+
+    // Quan hệ 1-N với Event
+    @OneToMany(mappedBy = "organizer")
+    Set<Event> events = new HashSet<>();
+
+    // Quan hệ 1-N với Notification
+    @OneToMany(mappedBy = "account")
+    Set<Notification> notifications = new HashSet<>();
+
+    // Quan hệ 1-N với Message
+    @OneToMany(mappedBy = "sender")
+    Set<Message> sentMessages = new HashSet<>();
+
+    @OneToMany(mappedBy = "receiver")
+    Set<Message> receivedMessages = new HashSet<>();
+
 }
