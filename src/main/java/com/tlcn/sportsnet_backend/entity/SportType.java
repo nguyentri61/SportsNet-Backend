@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Data
 @Builder
@@ -18,4 +21,7 @@ public class SportType {
 
     String name;
     String iconUrl;
+
+    @OneToMany(mappedBy = "sportType", cascade = CascadeType.ALL)
+    Set<EventRule> rules = new HashSet<>();
 }

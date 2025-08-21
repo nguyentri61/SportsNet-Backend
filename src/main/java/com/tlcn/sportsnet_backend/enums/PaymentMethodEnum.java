@@ -1,10 +1,8 @@
 package com.tlcn.sportsnet_backend.enums;
 
 public enum PaymentMethodEnum {
-    EVENT_INVITE("Lời mời tham gia sự kiện"),
-    COMMENT("Bình luận"),
-    LIKE("Yêu thích"),
-    FRIEND_REQUEST("Yêu cầu bạn bè");
+    DIRECT("Trực tiếp"),
+    ONLINE("Trực tuyến");
 
     private final String description;
 

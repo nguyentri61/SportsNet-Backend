@@ -18,7 +18,8 @@ public class EventParticipant {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    String role; // PLAYER, REFEREE
+    String teamName; // nếu có đội
+    String role;     // PLAYER, REFEREE, COACH, ORGANIZER
     LocalDateTime joinedAt;
 
     @ManyToOne

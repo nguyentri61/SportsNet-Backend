@@ -1,5 +1,6 @@
 package com.tlcn.sportsnet_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -26,6 +27,7 @@ public class UserInfo {
     String avatarUrl;
 
     @OneToOne
+    @MapsId
     @JoinColumn(name = "account_id", nullable = false)
     Account account;
 }

@@ -1,5 +1,6 @@
 package com.tlcn.sportsnet_backend.entity;
 
+import com.tlcn.sportsnet_backend.util.SecurityUtil;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -39,17 +40,17 @@ public class Post {
     @PrePersist
     public void handleBeforeCreate(){
         createdAt = Instant.now();
-//        createdBy = SecurityUtil.getCurrentUserLogin().isPresent()
-//                ? SecurityUtil.getCurrentUserLogin().get()
-//                : "";
+        createdBy = SecurityUtil.getCurrentUserLogin().isPresent()
+                ? SecurityUtil.getCurrentUserLogin().get()
+                : "";
     }
 
     @PreUpdate
     public void handleBeforeUpdate(){
         updatedAt = Instant.now();
-//        updatedBy = SecurityUtil.getCurrentUserLogin().isPresent()
-//                ? SecurityUtil.getCurrentUserLogin().get()
-//                : "";
+        updatedBy = SecurityUtil.getCurrentUserLogin().isPresent()
+                ? SecurityUtil.getCurrentUserLogin().get()
+                : "";
     }
 
 }

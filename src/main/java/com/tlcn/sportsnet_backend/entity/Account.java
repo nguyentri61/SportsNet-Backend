@@ -1,6 +1,8 @@
 package com.tlcn.sportsnet_backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.tlcn.sportsnet_backend.util.SecurityUtil;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -31,9 +33,6 @@ public class Account {
 
     boolean enabled;
 
-    @Column(columnDefinition = "MEDIUMTEXT")
-    String refreshToken;
-
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
     Instant createdAt;
 
@@ -47,24 +46,24 @@ public class Account {
     public void handleBeforeCreate(){
         createdAt = Instant.now();
         enabled = true;
-//        createdBy = SecurityUtil.getCurrentUserLogin().isPresent()
-//                ? SecurityUtil.getCurrentUserLogin().get()
-//                : "";
+        createdBy = SecurityUtil.getCurrentUserLogin().isPresent()
+                ? SecurityUtil.getCurrentUserLogin().get()
+                : "";
     }
 
     @PreUpdate
     public void handleBeforeUpdate(){
         updatedAt = Instant.now();
-//        updatedBy = SecurityUtil.getCurrentUserLogin().isPresent()
-//                ? SecurityUtil.getCurrentUserLogin().get()
-//                : "";
+        updatedBy = SecurityUtil.getCurrentUserLogin().isPresent()
+                ? SecurityUtil.getCurrentUserLogin().get()
+                : "";
     }
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
     UserInfo userInfo;
 
     // Quan hệ N-N với Role
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "account_roles",
             joinColumns = @JoinColumn(name = "account_id"),
