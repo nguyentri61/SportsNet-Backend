@@ -2,7 +2,6 @@ package com.tlcn.sportsnet_backend.controller;
 
 import com.tlcn.sportsnet_backend.dto.ApiResponse;
 import com.tlcn.sportsnet_backend.dto.auth.LoginDTO;
-import com.tlcn.sportsnet_backend.dto.auth.LoginResponse;
 import com.tlcn.sportsnet_backend.entity.Account;
 import com.tlcn.sportsnet_backend.entity.RefreshToken;
 import com.tlcn.sportsnet_backend.error.UnauthorizedException;
