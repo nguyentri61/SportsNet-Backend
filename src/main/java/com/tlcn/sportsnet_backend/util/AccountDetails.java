@@ -34,6 +34,7 @@ public class AccountDetails implements UserDetails {
                 .toList();
     }
 
+
     @Override
     public String getPassword() {
         return account.getPassword();
@@ -53,6 +54,7 @@ public class AccountDetails implements UserDetails {
     public boolean isAccountNonLocked() {
         return account.isEnabled(); // ← hoặc return true nếu không quan tâm tới locked
     }
+
 
     @Override
     public boolean isAccountNonExpired() {

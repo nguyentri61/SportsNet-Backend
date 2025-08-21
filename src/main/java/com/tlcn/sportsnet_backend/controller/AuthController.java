@@ -49,8 +49,7 @@ public class AuthController {
             @RequestHeader(value = "X-Device-Id", required = false) String deviceId,
             HttpServletRequest request
     ) {
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword());
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword());
 
         try {
             // Xác thực đăng nhập
@@ -84,7 +83,7 @@ public class AuthController {
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
                     .header("X-Device-Id", deviceId)
-                    .body(LoginResponse.builder().accessToken(accessToken).build());
+                    .body(ApiResponse.success(Map.of("accessToken", accessToken)));
 
         } catch (LockedException e) {
             throw new UnauthorizedException("Tài khoản bị khóa");

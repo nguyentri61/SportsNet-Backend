@@ -63,30 +63,30 @@ public class SecurityUtil {
      */
     public String createToken(Authentication authentication) {
         Instant now = Instant.now();
-        Instant validity = now.plus(this.expire_access, ChronoUnit.SECONDS);
+        Instant expiry = now.plus(expire_access, ChronoUnit.SECONDS);
 
+        Object principal = authentication.getPrincipal();
+        String id = null;
+        String username = authentication.getName();
         List<String> authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toList());
+                .toList();
 
-        String username = authentication.getName();
-        Object principal = authentication.getPrincipal();
-        String accountId = null;
-
-        if (principal instanceof AccountDetails accountDetails) {
-            accountId = accountDetails.getId();
+        if (principal instanceof AccountDetails details) {
+            id = details.getId();
+            username = details.getUsername();
         }
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .subject(username)
+                .claim("id", id)
                 .claim("authorities", authorities)
-                .claim("id", accountId)
                 .issuedAt(now)
-                .expiresAt(validity)
+                .expiresAt(expiry)
                 .build();
 
-        JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
-        return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
+        JwsHeader header = JwsHeader.with(MacAlgorithm.HS512).build();
+        return jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
     }
 
     /**
