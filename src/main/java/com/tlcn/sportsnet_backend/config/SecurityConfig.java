@@ -39,7 +39,7 @@ public class SecurityConfig {
     private JwtAuthEntryPoint jwtAuthEntryPoint;
 
     private final String[] API_ALLOWED = {
-            "/", "/api/auth/login", "/api/auth/refresh", "/api/", "/uploads/**",
+            "/", "/api/auth/login", "/api/auth/refresh", "/api/account/register" ,"/uploads/**",
             "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"
     };
 

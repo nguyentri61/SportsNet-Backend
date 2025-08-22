@@ -25,7 +25,7 @@ public class GlobalResponseWrapper implements ResponseBodyAdvice<Object> {
                 || Resource.class.isAssignableFrom(paramType));
 //        return !(paramType.equals(ApiResponse.class) || paramType.equals(ErrorResponse.class));
     }
-    //
+
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType,
