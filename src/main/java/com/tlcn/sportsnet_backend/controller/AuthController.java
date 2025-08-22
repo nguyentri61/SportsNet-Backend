@@ -151,14 +151,9 @@ public class AuthController {
         Account account = accountService.findByEmail(authentication.getName())
                 .orElseThrow(() -> new UnauthorizedException("Không tìm thấy tài khoản"));
 
-        List<String> roles = authentication.getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
-
         return ResponseEntity.ok(ApiResponse.success(Map.of(
                 "email", authentication.getName(),
-                "roles", roles
+                "roles", authentication.getAuthorities()
         )));
     }
 }

@@ -16,7 +16,6 @@ import java.time.LocalDate;
 @Table(name = "user_info")
 public class UserInfo {
     @Id
-    @GeneratedValue(strategy= GenerationType.UUID)
     String id;
 
     String fullName;

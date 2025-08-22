@@ -1,8 +1,8 @@
 package com.tlcn.sportsnet_backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.tlcn.sportsnet_backend.enums.EventStatusEnum;
 import com.tlcn.sportsnet_backend.enums.EventTypeEnum;
-import com.tlcn.sportsnet_backend.enums.PaymentMethodEnum;
 import com.tlcn.sportsnet_backend.util.SecurityUtil;
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,59 +28,67 @@ public class Event {
 
     String title;
 
-    @Column(columnDefinition="MEDIUMTEXT")
+    @Column(columnDefinition = "MEDIUMTEXT")
     String description;
 
     String coverImageUrl;
+    String location;
+
     LocalDateTime startTime;
     LocalDateTime endTime;
-    String location;
-    String status;
+
+    Integer capacity; // tối đa người/đội
     BigDecimal fee;
 
-    @Enumerated(EnumType.STRING)
-    PaymentMethodEnum paymentMethod;
+    boolean recurring;
+    String recurrenceRule; // ví dụ: FREQ=WEEKLY;BYDAY=SA
 
     @Enumerated(EnumType.STRING)
-    EventTypeEnum type; // Giải đấu / Huấn luyện / Giao hữu
+    EventTypeEnum type;
 
-    @ManyToOne
-    @JoinColumn(name = "sport_type_id", nullable = false)
-    SportType sportType;
+    @Enumerated(EnumType.STRING)
+    EventStatusEnum status;
 
-    @ManyToOne
-    @JoinColumn(name = "organizer_id", nullable = false)
+    @ManyToOne @JoinColumn(name = "sport_id", nullable = false)
+    Sport sport;
+
+    @ManyToOne @JoinColumn(name = "club_id")
+    Club club;
+
+    @ManyToOne @JoinColumn(name = "organizer_id", nullable = false)
     Account organizer;
 
-    @ManyToOne
-    @JoinColumn(name = "rule_id")
-    EventRule rule; // Quy tắc áp dụng
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<Team> teams = new HashSet<>();
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
-    Set<EventParticipant> participants = new HashSet<>();
+    Set<Participant> participants = new HashSet<>();
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<Match> matches = new HashSet<>();
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<Payment> payments = new HashSet<>();
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<Notification> notifications = new HashSet<>();
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+7")
     Instant createdAt;
-
     Instant updatedAt;
-
     String createdBy;
-
     String updatedBy;
 
     @PrePersist
-    public void handleBeforeCreate(){
+    public void prePersist() {
         createdAt = Instant.now();
-        createdBy = SecurityUtil.getCurrentUserLogin().isPresent()
-                ? SecurityUtil.getCurrentUserLogin().get()
-                : "";
+        createdBy = SecurityUtil.getCurrentUserLogin().orElse("");
+        status = status == null ? EventStatusEnum.DRAFT : status;
     }
 
     @PreUpdate
-    public void handleBeforeUpdate(){
+    public void preUpdate() {
         updatedAt = Instant.now();
-        updatedBy = SecurityUtil.getCurrentUserLogin().isPresent()
-                ? SecurityUtil.getCurrentUserLogin().get()
-                : "";
+        updatedBy = SecurityUtil.getCurrentUserLogin().orElse("");
     }
 }

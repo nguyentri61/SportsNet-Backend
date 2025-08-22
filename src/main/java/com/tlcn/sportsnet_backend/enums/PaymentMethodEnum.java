@@ -2,7 +2,7 @@ package com.tlcn.sportsnet_backend.enums;
 
 public enum PaymentMethodEnum {
     DIRECT("Trực tiếp"),
-    ONLINE("Trực tuyến");
+    BANKING("Chuyển khoản");
 
     private final String description;
 

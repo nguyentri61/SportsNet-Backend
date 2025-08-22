@@ -6,6 +6,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data
@@ -29,13 +31,17 @@ public class Post {
     String createdBy;
     String updatedBy;
 
-    @ManyToOne
-    @JoinColumn(name="club_id")
+    @ManyToOne @JoinColumn(name = "club_id")
     Club club;
 
-    @ManyToOne
-    @JoinColumn(name="event_id")
+    @ManyToOne @JoinColumn(name = "event_id")
     Event event;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<Comment> comments = new HashSet<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<Like> likes = new HashSet<>();
 
     @PrePersist
     public void handleBeforeCreate(){

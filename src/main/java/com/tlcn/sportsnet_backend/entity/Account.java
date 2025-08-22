@@ -63,12 +63,14 @@ public class Account {
     UserInfo userInfo;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "account_roles",
+    @JoinTable(name = "account_roles",
             joinColumns = @JoinColumn(name = "account_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
     Set<Role> roles = new HashSet<>();
+
+    // Social
+    @OneToMany(mappedBy = "owner")
+    Set<Club> ownedClubs = new HashSet<>();
 
     @OneToMany(mappedBy = "requester")
     Set<Friendship> sentFriendships = new HashSet<>();
@@ -76,19 +78,20 @@ public class Account {
     @OneToMany(mappedBy = "receiver")
     Set<Friendship> receivedFriendships = new HashSet<>();
 
-    @OneToMany(mappedBy = "owner")
-    Set<Club> clubs = new HashSet<>();
+    @OneToMany(mappedBy = "createdBy")
+    Set<Post> posts = new HashSet<>();
 
-    @OneToMany(mappedBy = "organizer")
-    Set<Event> events = new HashSet<>();
-
-    @OneToMany(mappedBy = "account")
-    Set<Notification> notifications = new HashSet<>();
-
+    // Messaging
     @OneToMany(mappedBy = "sender")
     Set<Message> sentMessages = new HashSet<>();
 
     @OneToMany(mappedBy = "receiver")
     Set<Message> receivedMessages = new HashSet<>();
 
+    // Event organizing
+    @OneToMany(mappedBy = "organizer")
+    Set<Event> organizedEvents = new HashSet<>();
+
+    @OneToMany(mappedBy = "account")
+    Set<Notification> notifications = new HashSet<>();
 }

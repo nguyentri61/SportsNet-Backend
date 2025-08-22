@@ -25,10 +25,6 @@ public class AccountService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public void save(Account account) {
-        accountRepository.save(account);
-    }
-
     public Optional<Account> findByEmail(String email) {
         return accountRepository.findByEmail(email);
     }
@@ -49,30 +45,4 @@ public class AccountService {
 
         return accountRepository.save(newAccount);
     }
-
-//    public static AccountDTO toDTO(Account account) {
-//        return AccountDTO.builder()
-//                .id(account.getId())
-//                .email(account.getEmail())
-//                .enabled(account.isEnabled())
-//                .userInfo(toUserInfoDTO(account.getUserInfo()))
-//                .roles(account.getRoles()
-//                        .stream()
-//                        .map(role -> role.getName())
-//                        .collect(Collectors.toSet()))
-//                .build();
-//    }
-//
-//    private static UserInfoDTO toUserInfoDTO(UserInfo userInfo) {
-//        if (userInfo == null) return null;
-//
-//        return UserInfoDTO.builder()
-//                .fullName(userInfo.getFullName())
-//                .birthDate(userInfo.getBirthDate())
-//                .gender(userInfo.getGender())
-//                .address(userInfo.getAddress())
-//                .bio(userInfo.getBio())
-//                .avatarUrl(userInfo.getAvatarUrl())
-//                .build();
-//    }
 }

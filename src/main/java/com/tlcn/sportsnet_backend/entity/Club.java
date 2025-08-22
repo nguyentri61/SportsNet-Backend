@@ -36,6 +36,12 @@ public class Club {
     @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
     Set<ClubMember> members = new HashSet<>();
 
+    @OneToMany(mappedBy = "club")
+    Set<Event> events = new HashSet<>();
+
+    @OneToMany(mappedBy = "club")
+    Set<Post> posts = new HashSet<>();
+
     @PrePersist
     protected void onCreate() {
         createdAt = Instant.now();

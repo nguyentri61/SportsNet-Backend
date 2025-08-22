@@ -19,21 +19,22 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @Enumerated(EnumType.STRING)
-    NotificationTypeEnum type;     // EVENT_INVITE, COMMENT, LIKE, FRIEND_REQUEST, ...
+    String title;
 
-    String message;
-    String link;     // "/events/123"
-    boolean isRead;
+    @Column(columnDefinition = "MEDIUMTEXT")
+    String content;
+
+    @Enumerated(EnumType.STRING)
+    NotificationTypeEnum type; // ANNOUNCEMENT, REMINDER, RESULT, CHANGE_SCHEDULE
+
     Instant createdAt;
 
-    @ManyToOne
-    @JoinColumn(name = "account_id", nullable = false)
+    @ManyToOne @JoinColumn(name = "account_id", nullable = false)
     Account account;
 
+    @ManyToOne @JoinColumn(name = "event_id")
+    Event event;
+
     @PrePersist
-    protected void onCreate() {
-        createdAt = Instant.now();
-        isRead = false;
-    }
+    protected void onCreate() { createdAt = Instant.now(); }
 }
