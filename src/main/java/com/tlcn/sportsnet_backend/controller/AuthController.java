@@ -40,7 +40,8 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
     @Value("${jwt.token-verify-validity-in-seconds}")
     private long refreshTokenExpiration;
-
+    @Value("${jwt.token-create-validity-in-seconds}")
+    private long expire_access;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(
@@ -72,15 +73,25 @@ public class AuthController {
                     request.getRemoteAddr()
             );
 
-            ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+            ResponseCookie refreshCookie  = ResponseCookie.from("refreshToken", refreshToken)
                     .httpOnly(true)
                     .secure(true)
                     .path("/")
                     .maxAge(refreshTokenExpiration)
                     .build();
 
+            ResponseCookie accessCookie = ResponseCookie.from("accessToken", accessToken)
+                    .httpOnly(true) // nếu chỉ muốn server-side đọc
+                    .secure(true)
+                    .path("/")
+                    .maxAge(expire_access)
+                    .build();
+
+
+
             return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                    .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                     .header("X-Device-Id", deviceId)
                     .body(ApiResponse.success(Map.of("accessToken", accessToken)));
 
@@ -113,15 +124,23 @@ public class AuthController {
                 token.getIpAddress()
         );
 
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", newRefresh)
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", newRefresh)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
                 .maxAge(refreshTokenExpiration)
                 .build();
 
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", newRefresh)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(expire_access)
+                .build();
+
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .header("X-Device-Id", deviceId)
                 .body(ApiResponse.success(Map.of("accessToken", newAccessToken)));
     }
@@ -134,7 +153,13 @@ public class AuthController {
     ) {
         refreshTokenService.revoke(refreshToken, deviceId); // tìm theo token + deviceId và xóa
 
-        ResponseCookie clearCookie = ResponseCookie.from("refreshToken", "")
+        ResponseCookie clearRefreshCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .build();
+        ResponseCookie clearAccessCookie = ResponseCookie.from("accessToken", "")
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -142,7 +167,8 @@ public class AuthController {
                 .build();
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, clearCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, clearRefreshCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, clearAccessCookie.toString())
                 .body(ApiResponse.success("Đăng xuất thành công", null));
     }
 
