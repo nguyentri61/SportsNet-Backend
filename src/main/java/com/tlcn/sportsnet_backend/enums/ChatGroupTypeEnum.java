@@ -1,12 +1,13 @@
 package com.tlcn.sportsnet_backend.enums;
 
-public enum PaymentMethodEnum {
-    DIRECT("Trực tiếp"),
-    BANKING("Chuyển khoản");
+public enum ChatGroupTypeEnum {
+    PRIVATE("Riêng tư"),
+    GROUP("Nhóm"),
+    CLUB("Câu lạc bộ");
 
     private final String description;
 
-    PaymentMethodEnum(String des) {
+    ChatGroupTypeEnum(String des) {
         this.description = des;
     }
 

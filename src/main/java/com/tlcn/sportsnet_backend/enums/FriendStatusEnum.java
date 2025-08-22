@@ -1,12 +1,13 @@
 package com.tlcn.sportsnet_backend.enums;
 
-public enum PaymentMethodEnum {
-    DIRECT("Trực tiếp"),
-    BANKING("Chuyển khoản");
+public enum FriendStatusEnum {
+    PENDING("Chờ xác nhận"),
+    ACCEPTED("Chấp nhận"),
+    BLOCKED("Chặn");
 
     private final String description;
 
-    PaymentMethodEnum(String des) {
+    FriendStatusEnum(String des) {
         this.description = des;
     }
 

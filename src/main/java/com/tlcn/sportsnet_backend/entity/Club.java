@@ -30,14 +30,17 @@ public class Club {
     Instant createdAt;
 
     @ManyToOne
-    @JoinColumn(name="owner_id")
-    private Account owner;
+    @JoinColumn(name = "owner_id", nullable = false)
+    Account owner;
 
-    @ManyToMany
-    @JoinTable(name="club_members",
-            joinColumns=@JoinColumn(name="club_id"),
-            inverseJoinColumns=@JoinColumn(name="account_id"))
-    private Set<Account> members = new HashSet<>();
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+    Set<ClubMember> members = new HashSet<>();
+
+    @OneToMany(mappedBy = "club")
+    Set<Event> events = new HashSet<>();
+
+    @OneToMany(mappedBy = "club")
+    Set<Post> posts = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {
