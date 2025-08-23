@@ -6,10 +6,7 @@ import com.tlcn.sportsnet_backend.entity.Sport;
 import com.tlcn.sportsnet_backend.service.ClubService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,7 +15,13 @@ public class ClubController {
     private final ClubService clubService;
 
     @PostMapping
-    public ResponseEntity<?> createSport(@RequestBody ClubCreateRequest request) {
+    public ResponseEntity<?> createClub(@RequestBody ClubCreateRequest request) {
         return ResponseEntity.ok(clubService.createClub(request));
+    }
+
+    @PutMapping("/active/{id}")
+    public ResponseEntity<?> activateClub(@PathVariable String id) {
+        clubService.activateClub(id);
+        return ResponseEntity.noContent().build();
     }
 }

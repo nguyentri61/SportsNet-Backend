@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tlcn.sportsnet_backend.enums.EventStatusEnum;
 import com.tlcn.sportsnet_backend.enums.EventTypeEnum;
 import com.tlcn.sportsnet_backend.util.SecurityUtil;
+import com.tlcn.sportsnet_backend.util.SlugUtil;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -23,7 +24,6 @@ import java.util.Set;
 @Table(name = "events")
 public class Event {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
     String title;
@@ -80,14 +80,19 @@ public class Event {
     String updatedBy;
 
     @PrePersist
-    public void prePersist() {
+    public void onCreate() {
+        if (this.id == null || this.id.isBlank()) {
+            String slug = SlugUtil.toSlug(this.title);
+            String randomSuffix = SlugUtil.randomString(8);
+            this.id = slug + "-" + randomSuffix;
+        }
         createdAt = Instant.now();
         createdBy = SecurityUtil.getCurrentUserLogin().orElse("");
         status = status == null ? EventStatusEnum.DRAFT : status;
     }
 
     @PreUpdate
-    public void preUpdate() {
+    public void onUpdate() {
         updatedAt = Instant.now();
         updatedBy = SecurityUtil.getCurrentUserLogin().orElse("");
     }

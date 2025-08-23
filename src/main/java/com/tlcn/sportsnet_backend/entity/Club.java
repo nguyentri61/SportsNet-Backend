@@ -1,5 +1,6 @@
 package com.tlcn.sportsnet_backend.entity;
 
+import com.tlcn.sportsnet_backend.util.SlugUtil;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -29,6 +30,9 @@ public class Club {
     String logoUrl;
     Instant createdAt;
 
+    @Builder.Default
+    boolean active = false;
+
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     Account owner;
@@ -44,6 +48,11 @@ public class Club {
 
     @PrePersist
     protected void onCreate() {
+        if (this.id == null || this.id.isBlank()) {
+            String slug = SlugUtil.toSlug(this.name);
+            String randomSuffix = SlugUtil.randomString(8);
+            this.id = slug + "-" + randomSuffix;
+        }
         createdAt = Instant.now();
     }
 }
