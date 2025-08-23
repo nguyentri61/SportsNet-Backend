@@ -4,6 +4,8 @@ import com.tlcn.sportsnet_backend.enums.SportTypeEnum;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.Map;
+
 @Builder
 @Data
 @NoArgsConstructor
@@ -13,5 +15,5 @@ public class SportResponse {
     String id;
     String name;
     SportTypeEnum type;
-    String defaultRules;
+    Map<String, Object> defaultRules;
 }
