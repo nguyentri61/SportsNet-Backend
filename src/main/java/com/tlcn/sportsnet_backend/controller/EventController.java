@@ -34,10 +34,25 @@ public class EventController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
-        if (file.isEmpty()) return ResponseEntity.badRequest().body("File is empty");
-        String filename = fileStorageService.storeFile(file, "/events");
-        return ResponseEntity.ok()
-                .body(ApiResponse.success(Map.of("fileName", filename)));
+    public ResponseEntity<?> uploadFiles(@RequestParam("files") List<MultipartFile> files) {
+        if (files == null || files.isEmpty()) {
+            return ResponseEntity.badRequest().body("No files uploaded");
+        }
+
+        List<String> uploadedFiles = files.stream()
+                .filter(f -> !f.isEmpty())
+                .map(f -> fileStorageService.storeFile(f, "/events"))
+                .toList();
+
+        if (uploadedFiles.size() == 1) {
+            // Trả về String nếu chỉ có 1 file
+            return ResponseEntity.ok()
+                    .body(ApiResponse.success(Map.of("fileName", uploadedFiles.getFirst())));
+        } else {
+            // Trả về List<String> nếu nhiều file
+            return ResponseEntity.ok()
+                    .body(ApiResponse.success(Map.of("fileNames", uploadedFiles)));
+        }
     }
+
 }
