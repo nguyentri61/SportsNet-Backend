@@ -49,7 +49,7 @@ public class EventService {
         // Xử lý upload cover image
         String coverFilename = null;
         if (request.getCoverImage() != null && !request.getCoverImage().isEmpty()) {
-            coverFilename = fileStorageService.storeFile(request.getCoverImage(), "events/cover");
+            coverFilename = fileStorageService.storeFile(request.getCoverImage(), "/events/cover");
         }
 
         // Xử lý upload nhiều ảnh
@@ -57,7 +57,7 @@ public class EventService {
         if (request.getImages() != null) {
             for (MultipartFile file : request.getImages()) {
                 if (!file.isEmpty()) {
-                    String filename = fileStorageService.storeFile(file, "events/images");
+                    String filename = fileStorageService.storeFile(file, "/events/images");
                     if (imagesFilenames.length() > 0) imagesFilenames.append(",");
                     imagesFilenames.append(filename);
                 }
@@ -95,11 +95,11 @@ public class EventService {
                 .id(event.getId())
                 .title(event.getTitle())
                 .description(event.getDescription())
-                .coverImageUrl(fileStorageService.getFileUrl(event.getCoverImage(), "events/cover"))
+                .coverImageUrl(fileStorageService.getFileUrl(event.getCoverImage(), "/events/cover"))
                 .images(
                         event.getImages() == null ? null :
                                 String.valueOf(Arrays.stream(event.getImages().split(","))
-                                        .map(img -> fileStorageService.getFileUrl(img, "events/images"))
+                                        .map(img -> fileStorageService.getFileUrl(img, "/events/images"))
                                         .toList())
                 )
                 .location(event.getLocation())
