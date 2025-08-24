@@ -1,6 +1,8 @@
 package com.tlcn.sportsnet_backend.controller;
 
 import com.tlcn.sportsnet_backend.dto.ApiResponse;
+import com.tlcn.sportsnet_backend.dto.account.AccountRegisterRequest;
+import com.tlcn.sportsnet_backend.dto.account.AccountResponse;
 import com.tlcn.sportsnet_backend.dto.auth.LoginDTO;
 import com.tlcn.sportsnet_backend.entity.Account;
 import com.tlcn.sportsnet_backend.entity.RefreshToken;
@@ -9,6 +11,7 @@ import com.tlcn.sportsnet_backend.service.AccountService;
 import com.tlcn.sportsnet_backend.service.RefreshTokenService;
 import com.tlcn.sportsnet_backend.util.SecurityUtil;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +53,8 @@ public class AuthController {
             HttpServletRequest request
     ) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword());
-
+        System.out.println(loginDTO.getEmail());
+        System.out.println(loginDTO.getPassword());
         try {
             // Xác thực đăng nhập
             Authentication authentication = authenticationManager.authenticate(authenticationToken);
@@ -86,14 +90,18 @@ public class AuthController {
                     .path("/")
                     .maxAge(expire_access)
                     .build();
-
+            ResponseCookie deviceIdCookie = ResponseCookie.from("deviceId", deviceId)
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .build();
 
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                     .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
-                    .header("X-Device-Id", deviceId)
-                    .body(ApiResponse.success(Map.of("accessToken", accessToken)));
+                    .header(HttpHeaders.SET_COOKIE, deviceIdCookie.toString())
+                    .body(ApiResponse.success(Map.of("accessToken", accessToken, "refreshToken" , refreshToken, "deviceId" , deviceId)));
 
         } catch (LockedException e) {
             throw new UnauthorizedException("Tài khoản bị khóa");
@@ -106,10 +114,10 @@ public class AuthController {
 
     @GetMapping("/refresh")
     public ResponseEntity<?> refreshAccessToken(
-            @CookieValue(value = "refreshToken", defaultValue = "") String refreshToken,
+            @RequestHeader( "refreshToken") String refreshToken,
             @RequestHeader("X-Device-Id") String deviceId
     ) {
-        if (refreshToken.isBlank()) {
+        if (refreshToken.isBlank() || refreshToken.isEmpty()) {
             throw new UnauthorizedException("Bạn chưa đăng nhập hoặc thiếu refresh token");
         }
 
@@ -131,24 +139,30 @@ public class AuthController {
                 .maxAge(refreshTokenExpiration)
                 .build();
 
-        ResponseCookie accessCookie = ResponseCookie.from("accessToken", newRefresh)
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", newAccessToken)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
                 .maxAge(expire_access)
                 .build();
 
+        ResponseCookie deviceIdCookie = ResponseCookie.from("deviceId", deviceId)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .build();
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
-                .header("X-Device-Id", deviceId)
-                .body(ApiResponse.success(Map.of("accessToken", newAccessToken)));
+                .header(HttpHeaders.SET_COOKIE, deviceIdCookie.toString())
+                .body(ApiResponse.success(Map.of("accessToken", newAccessToken, "refreshToken" , newRefresh, "deviceId" , deviceId)));
     }
 
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(
-            @CookieValue("refreshToken") String refreshToken,
+            @RequestHeader("refreshToken") String refreshToken,
             @RequestHeader("X-Device-Id") String deviceId
     ) {
         refreshTokenService.revoke(refreshToken, deviceId); // tìm theo token + deviceId và xóa
@@ -181,5 +195,51 @@ public class AuthController {
                 "email", authentication.getName(),
                 "roles", authentication.getAuthorities()
         )));
+    }
+
+    @Transactional
+    @PostMapping("/register")
+    public ResponseEntity<?> registerAccount(@RequestBody AccountRegisterRequest registerRequest,
+                                             HttpServletRequest request,
+                                             @RequestHeader(value = "X-Device-Id", required = false) String deviceId) {
+
+        if (deviceId == null || deviceId.isBlank()) {
+            deviceId = UUID.randomUUID().toString();
+        }
+
+        Account account = accountService.registerAccount(registerRequest);
+        String newAccessToken = securityUtil.createTokenFromAccount(account);
+        String newRefresh = refreshTokenService.create(
+                account,
+                deviceId,
+                request.getHeader("User-Agent"),
+                request.getRemoteAddr()
+        );
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", newRefresh)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(refreshTokenExpiration)
+                .build();
+
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", newAccessToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(expire_access)
+                .build();
+
+        ResponseCookie deviceIdCookie = ResponseCookie.from("deviceId", deviceId)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, deviceIdCookie.toString())
+                .body(ApiResponse.success(Map.of("accessToken", newAccessToken, "refreshToken" , newRefresh, "deviceId" , deviceId)));
     }
 }

@@ -18,10 +18,6 @@ public class AccountController {
 
     private final AccountService accountService;
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registerAccount(@RequestBody AccountRegisterRequest request) {
-        AccountResponse res = accountService.registerAccount(request);
-        return ResponseEntity.ok(res);
-    }
+
 
 }

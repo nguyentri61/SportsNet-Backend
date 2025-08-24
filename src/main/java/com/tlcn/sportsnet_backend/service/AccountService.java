@@ -28,7 +28,7 @@ public class AccountService {
         return accountRepository.findByEmail(email);
     }
 
-    public AccountResponse registerAccount(AccountRegisterRequest request) {
+    public Account registerAccount(AccountRegisterRequest request) {
         if (accountRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email đã tồn tại, vui lòng chọn email khác.");
         }
@@ -54,7 +54,7 @@ public class AccountService {
         newAccount.setUserInfo(userInfo);
         newAccount = accountRepository.save(newAccount);
 
-        return toResponse(newAccount);
+        return newAccount;
 
     }
 
