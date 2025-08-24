@@ -21,9 +21,6 @@ public class Team {
 
     String name;
 
-    @ManyToOne @JoinColumn(name = "sport_id", nullable = false)
-    Sport sport;
-
     @ManyToOne @JoinColumn(name = "event_id", nullable = false)
     Event event; // team thuộc event nào
 

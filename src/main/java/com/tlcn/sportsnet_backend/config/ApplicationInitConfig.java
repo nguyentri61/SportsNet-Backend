@@ -27,12 +27,12 @@ public class ApplicationInitConfig implements ApplicationRunner {
     }
 
     private void initRolesAndAdminUser() {
-        createRoleIfNotExists("ADMIN");
-        createRoleIfNotExists("USER");
-        createRoleIfNotExists("OWNER_CLUB");
+        createRoleIfNotExists("ROLE_ADMIN");
+        createRoleIfNotExists("ROLE_USER");
+        createRoleIfNotExists("ROLE_CLUB_OWNER");
 
         if (accountRepository.findByEmail("admin@gmail.com").isEmpty()) {
-            Role adminRole = roleRepository.findByName("ADMIN").orElseThrow(
+            Role adminRole = roleRepository.findByName("ROLE_ADMIN").orElseThrow(
                     () -> new RuntimeException("ADMIN không tồn tại"));
 
             Account admin = Account.builder()

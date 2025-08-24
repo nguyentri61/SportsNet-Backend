@@ -1,8 +1,6 @@
 package com.tlcn.sportsnet_backend.controller;
 
 import com.tlcn.sportsnet_backend.dto.club.ClubCreateRequest;
-import com.tlcn.sportsnet_backend.dto.sport.SportCreateRequest;
-import com.tlcn.sportsnet_backend.entity.Sport;
 import com.tlcn.sportsnet_backend.service.ClubService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

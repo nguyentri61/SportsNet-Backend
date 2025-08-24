@@ -41,3 +41,9 @@ jwt:
   base64-secret: b+cju49j8H8Seuyegekiu4KcJeBc9WPa2k8iSFhAznaWtfT45gWA9RfFZ6jdx6qHOGVMQKI0JQAiBsQ+jObyhw==
   token-create-validity-in-seconds: 6400
   token-verify-validity-in-seconds: 8640000
+
+
+app:
+  file:
+    upload-dir: uploads/
+    base-url: http://localhost:8080/uploads

@@ -5,6 +5,7 @@ import com.tlcn.sportsnet_backend.dto.event.EventResponse;
 import com.tlcn.sportsnet_backend.entity.Event;
 import com.tlcn.sportsnet_backend.service.EventService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,8 +23,8 @@ public class EventController {
         return ResponseEntity.ok(eventResponseList);
     }
 
-    @PostMapping
-    public ResponseEntity<?> createEvent(@RequestBody EventCreateRequest request) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> createEvent(@ModelAttribute EventCreateRequest request) {
         EventResponse res = eventService.createEvent(request);
         return ResponseEntity.ok(res);
     }

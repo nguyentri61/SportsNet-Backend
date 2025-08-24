@@ -1,22 +1,27 @@
 package com.tlcn.sportsnet_backend.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tlcn.sportsnet_backend.dto.event.EventCreateRequest;
 import com.tlcn.sportsnet_backend.dto.event.EventResponse;
 import com.tlcn.sportsnet_backend.entity.Account;
 import com.tlcn.sportsnet_backend.entity.Club;
 import com.tlcn.sportsnet_backend.entity.Event;
-import com.tlcn.sportsnet_backend.entity.Sport;
 import com.tlcn.sportsnet_backend.enums.EventStatusEnum;
 import com.tlcn.sportsnet_backend.repository.AccountRepository;
 import com.tlcn.sportsnet_backend.repository.ClubRepository;
 import com.tlcn.sportsnet_backend.repository.EventRepository;
-import com.tlcn.sportsnet_backend.repository.SportRepository;
 import com.tlcn.sportsnet_backend.util.SecurityUtil;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,55 +30,78 @@ public class EventService {
     private final EventRepository eventRepository;
     private final AccountRepository accountRepository;
     private final ClubRepository clubRepository;
-    private final SportRepository sportRepository;
+    private final FileStorageService fileStorageService;
 
-    public EventResponse createEvent(EventCreateRequest req) {
-        // Lấy sport
-        Sport sport = sportRepository.findById(req.getSportId())
-                .orElseThrow(() -> new RuntimeException("Sport not found"));
+    @Transactional
+    public EventResponse createEvent(EventCreateRequest request) {
 
-        // Lấy organizer (current user)
-        String currentUserEmail = SecurityUtil.getCurrentUserLogin()
-                .orElseThrow(() -> new RuntimeException("Unauthorized"));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        Account organizer = accountRepository.findByEmail(currentUserEmail)
+        Account organizer = accountRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Organizer not found"));
 
-        // Nếu có club
         Club club = null;
-        if (req.getClubId() != null) {
-            club = clubRepository.findById(req.getClubId())
+        if (request.getClubId() != null) {
+            club = clubRepository.findById(request.getClubId())
                     .orElseThrow(() -> new RuntimeException("Club not found"));
         }
 
+        // Xử lý upload cover image
+        String coverFilename = null;
+        if (request.getCoverImage() != null && !request.getCoverImage().isEmpty()) {
+            coverFilename = fileStorageService.storeFile(request.getCoverImage(), "events/cover");
+        }
+
+        // Xử lý upload nhiều ảnh
+        StringBuilder imagesFilenames = new StringBuilder();
+        if (request.getImages() != null) {
+            for (MultipartFile file : request.getImages()) {
+                if (!file.isEmpty()) {
+                    String filename = fileStorageService.storeFile(file, "events/images");
+                    if (imagesFilenames.length() > 0) imagesFilenames.append(",");
+                    imagesFilenames.append(filename);
+                }
+            }
+        }
+
         Event event = Event.builder()
-                .title(req.getTitle())
-                .description(req.getDescription())
-                .coverImageUrl(req.getCoverImageUrl())
-                .location(req.getLocation())
-                .startTime(req.getStartTime())
-                .endTime(req.getEndTime())
-                .capacity(req.getCapacity())
-                .fee(req.getFee())
-                .recurring(req.isRecurring())
-                .recurrenceRule(req.getRecurrenceRule())
-                .type(req.getType())
-                .status(EventStatusEnum.DRAFT) // mặc định ban đầu
-                .sport(sport)
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .coverImage(coverFilename)
+                .images(imagesFilenames.toString())
+                .location(request.getLocation())
+                .startTime(request.getStartTime())
+                .endTime(request.getEndTime())
+                .capacity(request.getCapacity())
+                .fee(request.getFee())
+                .recurring(request.isRecurring())
+                .recurrenceRule(request.getRecurrenceRule())
+                .eventType(request.getEventType())
+                .eventFormat(request.getEventFormat())
+                .sportType(request.getSportType())
+                .sportRule(request.getSportRule())
+                .status(EventStatusEnum.DRAFT) // default khi tạo
                 .club(club)
                 .organizer(organizer)
                 .build();
 
-        event = eventRepository.save(event);
-        return toResponse(event);
+        Event saved = eventRepository.save(event);
+
+        return toResponse(saved);
     }
 
-    public static EventResponse toResponse(Event event) {
+    private EventResponse toResponse(Event event) {
         return EventResponse.builder()
                 .id(event.getId())
                 .title(event.getTitle())
                 .description(event.getDescription())
-                .coverImageUrl(event.getCoverImageUrl())
+                .coverImageUrl(fileStorageService.getFileUrl(event.getCoverImage(), "events/cover"))
+                .images(
+                        event.getImages() == null ? null :
+                                String.valueOf(Arrays.stream(event.getImages().split(","))
+                                        .map(img -> fileStorageService.getFileUrl(img, "events/images"))
+                                        .toList())
+                )
                 .location(event.getLocation())
                 .startTime(event.getStartTime())
                 .endTime(event.getEndTime())
@@ -81,16 +109,14 @@ public class EventService {
                 .fee(event.getFee())
                 .recurring(event.isRecurring())
                 .recurrenceRule(event.getRecurrenceRule())
-                .type(event.getType())
+                .eventType(event.getEventType())
+                .eventFormat(event.getEventFormat())
+                .sportType(event.getSportType())
+                .sportRule(event.getSportRule())
                 .status(event.getStatus())
-                .sportName(event.getSport() != null ? event.getSport().getName() : null)
-                .clubName(event.getClub() != null ? event.getClub().getName() : null)
-                .organizerName(
-                        event.getOrganizer() != null && event.getOrganizer().getUserInfo() != null
-                                ? event.getOrganizer().getUserInfo().getFullName()
-                                : null)
+                .clubId(event.getClub() != null ? event.getClub().getId() : null)
+                .organizerId(event.getOrganizer().getId())
                 .createdAt(event.getCreatedAt())
-                .updatedAt(event.getUpdatedAt())
                 .build();
     }
 

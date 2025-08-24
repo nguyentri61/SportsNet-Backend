@@ -1,11 +1,15 @@
 package com.tlcn.sportsnet_backend.dto.event;
-
 import com.tlcn.sportsnet_backend.enums.EventTypeEnum;
+import com.tlcn.sportsnet_backend.enums.SportTypeEnum;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.web.multipart.MultipartFile;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 @Builder
 @Data
@@ -15,7 +19,10 @@ import java.time.LocalDateTime;
 public class EventCreateRequest {
     String title;
     String description;
-    String coverImageUrl;
+
+    MultipartFile coverImage;
+    MultipartFile[] images;
+
     String location;
 
     LocalDateTime startTime;
@@ -27,8 +34,11 @@ public class EventCreateRequest {
     boolean recurring;
     String recurrenceRule;
 
-    EventTypeEnum type;
+    String clubId; // nếu có
 
-    String sportId;
-    String clubId; // optional
+    EventTypeEnum eventType;
+    Map<String, Object> eventFormat;
+
+    SportTypeEnum sportType;
+    Map<String, Object> sportRule;
 }

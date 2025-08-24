@@ -3,16 +3,21 @@ package com.tlcn.sportsnet_backend.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tlcn.sportsnet_backend.enums.EventStatusEnum;
 import com.tlcn.sportsnet_backend.enums.EventTypeEnum;
+import com.tlcn.sportsnet_backend.enums.SportTypeEnum;
 import com.tlcn.sportsnet_backend.util.SecurityUtil;
 import com.tlcn.sportsnet_backend.util.SlugUtil;
+import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.Type;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Entity
@@ -26,31 +31,47 @@ public class Event {
     @Id
     String id;
 
+    @Column(nullable = false)
     String title;
 
     @Column(columnDefinition = "MEDIUMTEXT")
     String description;
 
-    String coverImageUrl;
+    String coverImage;
+
+    String images;
+
     String location;
 
     LocalDateTime startTime;
     LocalDateTime endTime;
 
-    Integer capacity; // tối đa người/đội
-    BigDecimal fee;
+    Integer capacity;   // tối đa số người / đội
+    BigDecimal fee;     // lệ phí tham gia
 
     boolean recurring;
     String recurrenceRule; // ví dụ: FREQ=WEEKLY;BYDAY=SA
 
     @Enumerated(EnumType.STRING)
-    EventTypeEnum type;
+    EventTypeEnum eventType;
+    /**
+     * Mô tả format của event
+     */
+    @Type(JsonType.class)
+    @Column(columnDefinition = "json")
+    Map<String, Object> eventFormat;
+
+    @Enumerated(EnumType.STRING)
+    SportTypeEnum sportType;
+    /**
+     * Mô tả rule của môn thể thao
+     */
+    @Type(JsonType.class)
+    @Column(columnDefinition = "json")
+    Map<String, Object> sportRule;
 
     @Enumerated(EnumType.STRING)
     EventStatusEnum status;
-
-    @ManyToOne @JoinColumn(name = "sport_id", nullable = false)
-    Sport sport;
 
     @ManyToOne @JoinColumn(name = "club_id")
     Club club;
