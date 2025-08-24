@@ -1,12 +1,9 @@
 package com.tlcn.sportsnet_backend.enums;
 
 public enum EventTypeEnum {
-    FRIENDLY_MATCH("Trận giao hữu"),
     TOURNAMENT("Giải đấu"),
-    TRAINING("Buổi tập luyện"),
-    COMPETITION("Thi đấu chính thức"),
-    WORKSHOP("Workshop / Hướng dẫn kỹ năng"),
-    COMMUNITY_EVENT("Sự kiện cộng đồng");
+    TRAINING_CLASS("Lớp học / Huấn luyện"),
+    CLUB_ACTIVITY("Giao lưu CLB / Tuyển thành viên");
 
     private final String description;
 
