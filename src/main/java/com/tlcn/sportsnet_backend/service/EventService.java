@@ -36,7 +36,6 @@ public class EventService {
     public EventResponse createEvent(EventCreateRequest request) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         Account organizer = accountRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Organizer not found"));
 
@@ -46,29 +45,17 @@ public class EventService {
                     .orElseThrow(() -> new RuntimeException("Club not found"));
         }
 
-        // Xử lý upload cover image
-        String coverFilename = null;
-        if (request.getCoverImage() != null && !request.getCoverImage().isEmpty()) {
-            coverFilename = fileStorageService.storeFile(request.getCoverImage(), "/events/cover");
-        }
-
-        // Xử lý upload nhiều ảnh
-        StringBuilder imagesFilenames = new StringBuilder();
-        if (request.getImages() != null) {
-            for (MultipartFile file : request.getImages()) {
-                if (!file.isEmpty()) {
-                    String filename = fileStorageService.storeFile(file, "/events/images");
-                    if (imagesFilenames.length() > 0) imagesFilenames.append(",");
-                    imagesFilenames.append(filename);
-                }
-            }
+        String coverFilename = request.getCoverImageFilename();
+        String imagesFilenames = null;
+        if (request.getImagesFilenames() != null && !request.getImagesFilenames().isEmpty()) {
+            imagesFilenames = String.join(",", request.getImagesFilenames());
         }
 
         Event event = Event.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .coverImage(coverFilename)
-                .images(imagesFilenames.toString())
+                .images(imagesFilenames)
                 .location(request.getLocation())
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
@@ -80,13 +67,12 @@ public class EventService {
                 .eventFormat(request.getEventFormat())
                 .sportType(request.getSportType())
                 .sportRule(request.getSportRule())
-                .status(EventStatusEnum.DRAFT) // default khi tạo
+                .status(EventStatusEnum.DRAFT)
                 .club(club)
                 .organizer(organizer)
                 .build();
 
         Event saved = eventRepository.save(event);
-
         return toResponse(saved);
     }
 
@@ -95,11 +81,11 @@ public class EventService {
                 .id(event.getId())
                 .title(event.getTitle())
                 .description(event.getDescription())
-                .coverImageUrl(fileStorageService.getFileUrl(event.getCoverImage(), "/events/cover"))
+                .coverImageUrl(fileStorageService.getFileUrl(event.getCoverImage(), "/events"))
                 .images(
                         event.getImages() == null ? null :
                                 String.valueOf(Arrays.stream(event.getImages().split(","))
-                                        .map(img -> fileStorageService.getFileUrl(img, "/events/images"))
+                                        .map(img -> fileStorageService.getFileUrl(img, "/events"))
                                         .toList())
                 )
                 .location(event.getLocation())

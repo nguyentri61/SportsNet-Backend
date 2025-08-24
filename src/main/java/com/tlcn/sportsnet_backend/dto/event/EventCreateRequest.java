@@ -20,8 +20,8 @@ public class EventCreateRequest {
     String title;
     String description;
 
-    MultipartFile coverImage;
-    MultipartFile[] images;
+    String coverImageFilename;
+    List<String> imagesFilenames;
 
     String location;
 
