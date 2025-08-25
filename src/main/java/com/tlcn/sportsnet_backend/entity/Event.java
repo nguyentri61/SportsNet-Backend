@@ -12,12 +12,10 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.Type;
 
-import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Entity
@@ -37,20 +35,13 @@ public class Event {
     @Column(columnDefinition = "MEDIUMTEXT")
     String description;
 
-    String coverImage;
+    String image;
 
-    String images;
-
+    LocalDate date;
     String location;
 
     LocalDateTime startTime;
     LocalDateTime endTime;
-
-    int capacity;   // tối đa số người / đội
-    BigDecimal fee;     // lệ phí tham gia
-
-    boolean recurring;
-    String recurrenceRule; // ví dụ: FREQ=WEEKLY;BYDAY=SA
 
     @Enumerated(EnumType.STRING)
     EventTypeEnum eventType;
@@ -68,9 +59,6 @@ public class Event {
 
     @Enumerated(EnumType.STRING)
     EventStatusEnum status;
-
-    @Enumerated(EnumType.STRING)
-    EventVisibilityEnum visibility; // PRIVATE (chỉ member CLB) | PUBLIC (cộng đồng)
 
     @ManyToOne @JoinColumn(name = "club_id")
     Club club;

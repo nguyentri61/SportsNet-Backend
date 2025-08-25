@@ -1,12 +1,15 @@
-package com.tlcn.sportsnet_backend.dto.event;
+package com.tlcn.sportsnet_backend.dto.club_event;
 
+import com.tlcn.sportsnet_backend.enums.BadmintonCategoryEnum;
 import com.tlcn.sportsnet_backend.enums.EventStatusEnum;
-import com.tlcn.sportsnet_backend.enums.EventVisibilityEnum;
+import com.tlcn.sportsnet_backend.enums.ClubVisibilityEnum;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @Data
@@ -17,18 +20,14 @@ public class ClubEventResponse {
     String id;
     String title;
     String description;
+    String image;
     String location;
+    LocalDate date;
     LocalDateTime startTime;
     LocalDateTime endTime;
-
-    int capacity;
-    int currentParticipants; // số người đã tham gia
-    BigDecimal fee;
-
+    int totalMember;
+    ClubVisibilityEnum clubVisibility;
+    List<BadmintonCategoryEnum> categories;
     EventStatusEnum status;
-    EventVisibilityEnum visibility;
-
     String clubId;
-    String facilityId;
-    String organizerId;
 }

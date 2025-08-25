@@ -1,5 +1,7 @@
 package com.tlcn.sportsnet_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.tlcn.sportsnet_backend.util.SecurityUtil;
 import com.tlcn.sportsnet_backend.util.SlugUtil;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,7 +21,6 @@ import java.util.Set;
 @Table(name = "clubs")
 public class Club {
     @Id
-    @GeneratedValue(strategy= GenerationType.UUID)
     String id;
 
     String name;
@@ -28,7 +29,6 @@ public class Club {
     String description;
 
     String logoUrl;
-    Instant createdAt;
 
     @Builder.Default
     boolean active = false;
@@ -41,18 +41,38 @@ public class Club {
     Set<ClubMember> members = new HashSet<>();
 
     @OneToMany(mappedBy = "club")
-    Set<Event> events = new HashSet<>();
+    Set<ClubEvent> events = new HashSet<>();
 
     @OneToMany(mappedBy = "club")
     Set<Post> posts = new HashSet<>();
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GMT+7")
+    Instant createdAt;
+
+    Instant updatedAt;
+
+    String createdBy;
+
+    String updatedBy;
+
     @PrePersist
-    protected void onCreate() {
+    public void handleBeforeCreate(){
+        createdAt = Instant.now();
+        createdBy = SecurityUtil.getCurrentUserLogin().isPresent()
+                ? SecurityUtil.getCurrentUserLogin().get()
+                : "";
         if (this.id == null || this.id.isBlank()) {
             String slug = SlugUtil.toSlug(this.name);
             String randomSuffix = SlugUtil.randomString(8);
             this.id = slug + "-" + randomSuffix;
         }
-        createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    public void handleBeforeUpdate(){
+        updatedAt = Instant.now();
+        updatedBy = SecurityUtil.getCurrentUserLogin().isPresent()
+                ? SecurityUtil.getCurrentUserLogin().get()
+                : "";
     }
 }

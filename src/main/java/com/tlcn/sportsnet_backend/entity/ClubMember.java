@@ -1,5 +1,6 @@
 package com.tlcn.sportsnet_backend.entity;
 
+import com.tlcn.sportsnet_backend.enums.ClubMemberRoleEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -18,7 +19,9 @@ public class ClubMember {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    String role; // MEMBER, ADMIN
+    @Enumerated(EnumType.STRING)
+    ClubMemberRoleEnum role; // MEMBER, ADMIN
+
     LocalDateTime joinedAt;
 
     @ManyToOne

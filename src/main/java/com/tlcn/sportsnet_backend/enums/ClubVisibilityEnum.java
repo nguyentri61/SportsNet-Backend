@@ -1,5 +1,5 @@
 package com.tlcn.sportsnet_backend.enums;
 
-public enum EventVisibilityEnum {
+public enum ClubVisibilityEnum {
     PRIVATE, PUBLIC;
 }

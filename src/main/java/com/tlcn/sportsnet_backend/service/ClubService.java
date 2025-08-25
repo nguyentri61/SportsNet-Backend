@@ -1,6 +1,7 @@
 package com.tlcn.sportsnet_backend.service;
 
 import com.tlcn.sportsnet_backend.dto.club.ClubCreateRequest;
+import com.tlcn.sportsnet_backend.dto.club.ClubResponse;
 import com.tlcn.sportsnet_backend.entity.Account;
 import com.tlcn.sportsnet_backend.entity.Club;
 import com.tlcn.sportsnet_backend.entity.Role;
@@ -8,6 +9,8 @@ import com.tlcn.sportsnet_backend.repository.AccountRepository;
 import com.tlcn.sportsnet_backend.repository.ClubRepository;
 import com.tlcn.sportsnet_backend.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,8 +20,11 @@ public class ClubService {
     private final AccountRepository accountRepository;
     private final RoleRepository roleRepository;
 
-    public Club createClub(ClubCreateRequest request) {
-        Account owner = accountRepository.findById(request.getOwnerId())
+    public ClubResponse createClub(ClubCreateRequest request) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Account owner = accountRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Owner not found"));
 
         Club club = Club.builder()
@@ -27,7 +33,17 @@ public class ClubService {
                 .logoUrl(request.getLogoUrl())
                 .owner(owner)
                 .build();
-        return clubRepository.save(club);
+        club = clubRepository.save(club);
+
+        return ClubResponse.builder()
+                .id(club.getId())
+                .name(club.getName())
+                .description(club.getDescription())
+                .logoUrl(club.getLogoUrl())
+                .active(club.isActive())
+                .ownerId(owner.getId())
+                .createdAt(club.getCreatedAt())
+                .build();
     }
 
     public void activateClub(String id) {
