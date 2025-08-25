@@ -1,5 +1,6 @@
 package com.tlcn.sportsnet_backend.entity;
 
+import com.tlcn.sportsnet_backend.enums.TeamTypeEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -20,6 +21,9 @@ public class Team {
     String id;
 
     String name;
+
+    @Enumerated(EnumType.STRING)
+    TeamTypeEnum teamType; // SINGLE/DOUBLE
 
     @ManyToOne @JoinColumn(name = "event_id", nullable = false)
     Event event; // team thuộc event nào

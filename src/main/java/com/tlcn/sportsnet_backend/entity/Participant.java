@@ -27,7 +27,7 @@ public class Participant {
     Event event;
 
     @ManyToOne @JoinColumn(name = "team_id")
-    Team team; // nullable nếu cá nhân
+    Team team; // null nếu SINGLE & mỗi người là một Team riêng
 
     @Enumerated(EnumType.STRING)
     ParticipantRoleEnum role; // PLAYER, COACH, REFEREE, MANAGER

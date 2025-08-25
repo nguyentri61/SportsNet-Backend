@@ -21,17 +21,17 @@ public class EventController {
     private final EventService eventService;
     private final FileStorageService fileStorageService;
 
-    @GetMapping
-    public ResponseEntity<?> findAll() {
-        List<EventResponse> eventResponseList = eventService.findAll();
-        return ResponseEntity.ok(eventResponseList);
-    }
-
-    @PostMapping
-    public ResponseEntity<?> createEvent(@RequestBody EventCreateRequest request) {
-        EventResponse res = eventService.createEvent(request);
-        return ResponseEntity.ok(res);
-    }
+//    @GetMapping
+//    public ResponseEntity<?> findAll() {
+//        List<EventResponse> eventResponseList = eventService.findAll();
+//        return ResponseEntity.ok(eventResponseList);
+//    }
+//
+//    @PostMapping
+//    public ResponseEntity<?> createEvent(@RequestBody EventCreateRequest request) {
+//        EventResponse res = eventService.createEvent(request);
+//        return ResponseEntity.ok(res);
+//    }
 
     @PostMapping("/upload")
     public ResponseEntity<?> uploadFiles(@RequestParam("files") List<MultipartFile> files) {

@@ -1,9 +1,9 @@
 package com.tlcn.sportsnet_backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.tlcn.sportsnet_backend.enums.EventStatusEnum;
-import com.tlcn.sportsnet_backend.enums.EventTypeEnum;
-import com.tlcn.sportsnet_backend.enums.SportTypeEnum;
+import com.tlcn.sportsnet_backend.enums.*;
+import com.tlcn.sportsnet_backend.model.BadmintonEventFormat;
+import com.tlcn.sportsnet_backend.model.BadmintonSportRule;
 import com.tlcn.sportsnet_backend.util.SecurityUtil;
 import com.tlcn.sportsnet_backend.util.SlugUtil;
 import com.vladmihalcea.hibernate.type.json.JsonType;
@@ -54,27 +54,29 @@ public class Event {
 
     @Enumerated(EnumType.STRING)
     EventTypeEnum eventType;
-    /**
-     * Mô tả format của event
-     */
-    @Type(JsonType.class)
-    @Column(columnDefinition = "json")
-    Map<String, Object> eventFormat;
 
     @Enumerated(EnumType.STRING)
-    SportTypeEnum sportType;
-    /**
-     * Mô tả rule của môn thể thao
-     */
+    BadmintonCategoryEnum badmintonCategory; // Đơn/Đôi các loại
+
     @Type(JsonType.class)
     @Column(columnDefinition = "json")
-    Map<String, Object> sportRule;
+    BadmintonEventFormat eventFormat; // mode, rounds, thirdPlaceMatch
+
+    @Type(JsonType.class)
+    @Column(columnDefinition = "json")
+    BadmintonSportRule sportRule; // bestOf, pointsPerSet, winBy, maxPoints
 
     @Enumerated(EnumType.STRING)
     EventStatusEnum status;
 
+    @Enumerated(EnumType.STRING)
+    EventVisibilityEnum visibility; // PRIVATE (chỉ member CLB) | PUBLIC (cộng đồng)
+
     @ManyToOne @JoinColumn(name = "club_id")
     Club club;
+
+    @ManyToOne @JoinColumn(name = "facility_id")
+    Facility facility;
 
     @ManyToOne @JoinColumn(name = "organizer_id", nullable = false)
     Account organizer;
