@@ -46,7 +46,7 @@ public class Event {
     LocalDateTime startTime;
     LocalDateTime endTime;
 
-    Integer capacity;   // tối đa số người / đội
+    int capacity;   // tối đa số người / đội
     BigDecimal fee;     // lệ phí tham gia
 
     boolean recurring;
